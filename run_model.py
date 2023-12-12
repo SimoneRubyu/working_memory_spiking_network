@@ -35,7 +35,8 @@ network_p = {
     # current used to go back to the spontaneous activity
     'eta_exc_end': 22.7 - eta_exc,
     'stp_params' : {'u0': u_start, 'tau_F': 1500.0, 'tau_D': 200.0},
-    'syn_params' : {'autapses' : True, 'multapses' : True}}
+    'syn_params' : {'autapses' : True, 'multapses' : True, 'Jp_normal_dist' : {'allow' : True, 'std' : 0.1},
+                    'Jb_normal_dist' : {'allow' : True, 'std' : 0.05}}}
 
 
 # presimulation time (i.e. time in which the network stays in the spontaneous activity)

@@ -49,7 +49,7 @@ class WMModel:
             check_params(network_spec, self.network_params)
             self.network_custom_params = network_spec
             update_params(self.network_params, self.network_custom_params)
-            #print("Used parameters: ", self.network_params)
+            print("Used parameters: ", self.network_params)
         else:
             raise TypeError("network_spec must be a dict.")
         
@@ -63,7 +63,7 @@ class WMModel:
         else:
             raise TypeError("sim_spec must be a dict.")
         
-        self.data_path = self.simulation_params["data_path"]        
+        self.data_path = self.simulation_params["data_path"]
         if os.path.isdir(self.simulation_params["data_path"]):
             if(self.simulation_params['overwrite_files']==False):
                 print("Data directory already exists and cannot be overwritten.\nPlease remove the folder %s" % self.data_path)
@@ -121,7 +121,8 @@ class WMModel:
                 np.savetxt(self.simulation_params['data_path'] + fn, spikes)
 
 
-    def add_background_input(self, start=0.0, stop=1000.0, origin = 1000.0):
+    
+    def add_background_input(self, start=0.0, stop=1000.0):
         """
         Add backround input to the network using the parameters previously given.
 
@@ -549,6 +550,15 @@ class WMModel:
 
         #print option to be implemented
         more_print = False
+        
+        #definition of the weight and standard deviations variables
+        J_p_pA = get_weight(self.network_params["syn_params"]["J_p"], self.network_params["neur_params"]["tau"][0])
+        std_p_pA = get_weight(self.network_params["syn_params"]["Jp_normal_dist"]["std"], self.network_params["neur_params"]["tau"][0])
+        
+        J_b_pA = get_weight(self.network_params["syn_params"]["J_b"], self.network_params["neur_params"]["tau"][0])
+        std_b_pA = get_weight(self.network_params["syn_params"]["Jb_normal_dist"]["std"], self.network_params["neur_params"]["tau"][0])
+        
+        
         print("Connecting the neuron populations...", end = ' ')
         for i in range(self.p):
             if more_print:
@@ -562,7 +572,7 @@ class WMModel:
                             'allow_autapses': self.network_params["syn_params"]["autapses"], 'allow_multapses': self.network_params["syn_params"]["multapses"]}
                 if i==j:
                     syn_dict = {"synapse_model": "tsodyks3_synapse",
-                                "weight": get_weight(self.network_params["syn_params"]["J_p"], self.network_params["neur_params"]["tau"][0]),
+                                "weight": nest.random.normal(mean = J_p_pA, std = std_p_pA) if self.network_params["syn_params"]["Jp_normal_dist"]["allow"] else J_p_pA,
                                 "delay": nest.random.uniform(min=self.network_params["syn_params"]["delay"][0], max=self.network_params["syn_params"]["delay"][1]),
                                 "tau_rec": self.network_params["stp_params"]["tau_D"],
                                 "tau_fac": self.network_params["stp_params"]["tau_F"],
@@ -572,7 +582,7 @@ class WMModel:
                     nest.Connect(self.exc_populations[j], self.exc_populations[i], con_dict, syn_dict)
                 else:
                     syn_dict = {"synapse_model": "tsodyks3_synapse",
-                                "weight": get_weight(self.network_params["syn_params"]["J_b"], self.network_params["neur_params"]["tau"][0]),
+                                "weight": nest.random.normal(mean = J_b_pA, std = std_b_pA) if self.network_params["syn_params"]["Jb_normal_dist"]["allow"] else J_b_pA,
                                 "delay": nest.random.uniform(min=self.network_params["syn_params"]["delay"][0], max=self.network_params["syn_params"]["delay"][1]),
                                 "tau_rec": self.network_params["stp_params"]["tau_D"],
                                 "tau_fac": self.network_params["stp_params"]["tau_F"],

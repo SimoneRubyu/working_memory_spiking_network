@@ -83,7 +83,11 @@ default_syn_params = {
     # possibility of doing self-connections
     "autapses" : True,
     # possibility of having multiple connections within two neurons
-    "multapses" : True}
+    "multapses" : True, 
+    # adds the possibility to have a normal distribution for J_p (absolute weight for potentiated synapses)
+    "Jp_normal_dist" : {"allow" : False, "std" : 0.1},
+    # adds the possibility to have a normal distribution for J_b (absolute weight for baseline synapses)
+    "Jb_normal_dist" : {"allow" : False, "std" : 0.05}}
 
 default_network_params.update({'syn_params': default_syn_params})
 
